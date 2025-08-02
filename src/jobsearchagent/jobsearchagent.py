@@ -1,15 +1,11 @@
-from dotenv import load_dotenv
-from langchain_tavily import TavilySearch
-import os
+from config import Config
+from webSearchTool import WebSearchTool
 
-load_dotenv()
+config = Config()
 
-langsmith_tracing = os.getenv("LANGSMITH_TRACING")
-langsmih_api_key = os.getenv("LANGSMITH_API_KEY")
-tavily_api_key = os.getenv("TAVILY_API_KEY")
+print(config.runtime_env)
 
-search = TavilySearch(max_results=2)
-search_results = search.invoke("Software Engineer remote jobs in Australia")
-print(search_results)
+search = WebSearchTool(config)
+print(search.searchWeb("Software Engineer remote jobs in Australia"))
 
 tools = [search] # Saving every tool in a list for later reference
