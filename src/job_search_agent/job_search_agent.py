@@ -1,5 +1,5 @@
 from config import Config
-from webSearchTool import WebSearchTool
+from job_search_agent.web_search_agent import WebSearchTool
 
 config = Config()
 
