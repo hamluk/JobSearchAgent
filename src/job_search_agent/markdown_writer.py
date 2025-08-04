@@ -1,20 +1,21 @@
 from langchain_core.tools import tool
+from pydantic import BaseModel, Field
 
-@tool
-def markdown_writer(**kwargs: str):
+from utils.markdown import to_markdown
+
+class MarkdownInput(BaseModel):
+    data: str = Field(description="The full content to convert into markdown format.")
+
+@tool("convert_to_markdown", args_schema=MarkdownInput, return_direct=True)
+def markdown_writer(data: str) -> str:
     """
-    Function to create a markdown document.
-    This function is a placeholder and should be implemented with actual logic.
+    Converts plain text into a well-formatted markdown document.
+    Use this tool **only after gathering all needed information** (e.g. via web search).
     """
 
-    data_lines = []
-    
-    for key, value in kwargs.items():
-        data_lines.append(f"{key}: {value}")
+    if not data.strip():
+        return "Error: No data provided to convert. Please pass the missing text in the 'data' parameter to convert."
 
+    output_text = to_markdown(data)
 
-    output_text = "\n".join(data_lines)
-
-    print(output_text)
-
-    return "Markdown document created successfully."
+    return f"Markdown document created successfully\n {output_text}"

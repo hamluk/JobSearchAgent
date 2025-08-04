@@ -2,6 +2,7 @@ from groq import RateLimitError
 from langchain_tavily import TavilySearch
 from config import Config
 from langchain.chat_models import init_chat_model
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
 from markdown_writer import markdown_writer
@@ -33,7 +34,36 @@ tools = [search, markdown_writer] # Saving every tool in a list for agent refere
 
 model = init_chat_model(config.llm_model, model_provider=config.model_provider, api_key=config.croq_api_key)
 
-agent_executor = create_react_agent(model, tools, checkpointer=memory, max_iterations=3)
+system_prompt = ChatPromptTemplate([
+    ("system", 
+     """
+        You are an intelligent assistant that helps users research online topics and produce structured markdown summaries.
+
+        Your workflow is:
+        1. Use `tavily_search` to gather factual information.
+        3. Pass the information to `convert_to_markdown` by using the 'data' argument.
+
+        DO NOT call `convert_to_markdown` before relevant information has been found.
+        DO NOT fabricate answers — rely on search results.
+        Only call one tool at a time.
+
+        When the user asks a question, follow this pattern:
+        - Think about what needs to be searched.
+        - Use the search tool with a specific query.
+        - Send that search result to `convert_to_markdown`.
+
+        Be concise, accurate, and markdown-ready in your formatting.
+    """),
+    ("user", "{messages}")
+    ]
+)
+
+agent_executor = create_react_agent(
+    model,
+    tools,
+    checkpointer=memory,
+    max_iterations=3,
+    prompt= system_prompt)
 
 query = "Create a markdown document with the current weather in San Francisco."
 
