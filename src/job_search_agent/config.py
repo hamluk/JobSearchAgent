@@ -9,4 +9,6 @@ class Config(BaseSettings):
     model_provider: str
     croq_api_key: str
 
+    llm_agent_retry_enabled: bool
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
